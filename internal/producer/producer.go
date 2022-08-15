@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/Egor-Tihonov/Kafka-proj/internal/models"
 
@@ -31,6 +32,10 @@ func (p *Producer) WriteMessagesToTopic(countMessage int) error {
 			break
 		}
 		messages = append(messages, kafka.Message{Value: mess})
+	}
+	err := p.Conn.SetWriteDeadline(time.Now().Add(time.Second * 2))
+	if err != nil {
+		return err
 	}
 	for _, a := range messages {
 		_, err := p.Conn.WriteMessages(a)
