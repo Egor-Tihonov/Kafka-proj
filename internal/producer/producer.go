@@ -15,7 +15,7 @@ type Producer struct {
 }
 
 func NewProducer() (*Producer, error) {
-	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "topic_test", 0)
+	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "quickstart-events", 0)
 	if err != nil {
 		return nil, fmt.Errorf("producer: can't create new instance - %e", err)
 	}

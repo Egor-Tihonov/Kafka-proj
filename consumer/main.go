@@ -1,21 +1,32 @@
 package main
 
 import (
-	"context"
-	"fmt"
+	"log"
 
-	"github.com/segmentio/kafka-go"
+	"github.com/Egor-Tihonov/Kafka-proj/internal/consumer"
+	"github.com/Egor-Tihonov/Kafka-proj/internal/repository"
 )
 
 func main() {
-	conn, _ := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "topic_test", 0)
-	messages := conn.ReadBatch(0, 1e3)
-	bytes := make([]byte, 1e3)
-	for {
-		_, err := messages.Read(bytes)
+	cons, err := consumer.NewConsumer()
+	defer func() {
+		err := cons.Conn.Close()
 		if err != nil {
-			break
+			log.Fatalf("error %e", err)
 		}
-		fmt.Println(string(bytes))
+
+	}()
+	if err != nil {
+		log.Fatalf("error %e", err)
 	}
+	log.Println("successfully create consumer...")
+	rps, err := repository.NewConnection()
+	if err != nil {
+		log.Fatalf("error %e", err)
+	}
+	err = cons.ReadMessages(rps)
+	if err != nil {
+		log.Fatalf("error %e", err)
+	}
+	log.Println("successfully add to db")
 }
