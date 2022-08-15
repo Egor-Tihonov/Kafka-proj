@@ -19,7 +19,7 @@ func NewConnection() (*PostgresR, error) {
 	conn, err := pgxpool.Connect(context.Background(), "postgresql://postgres:123@localhost:5432/postgres")
 	if err != nil {
 		log.Print("failed connect to postgres")
-		return nil, nil
+		return nil, err
 	}
 	log.Print("successfully connect to postgres...")
 	return &PostgresR{Pool: conn}, nil
