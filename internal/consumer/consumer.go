@@ -8,7 +8,6 @@ import (
 
 	"github.com/Egor-Tihonov/Kafka-proj/internal/models"
 	"github.com/Egor-Tihonov/Kafka-proj/internal/repository"
-	"github.com/jackc/pgx/v4"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -25,9 +24,9 @@ func NewConsumer() (*Consumer, error) {
 }
 
 func (c Consumer) ReadMessages(rps *repository.PostgresR) error {
-	pgxBatch := pgx.Batch{}
 	messages := c.Conn.ReadBatch(10e1, 10e5)
 	bytes := make([]byte, 10e5)
+	var messagesM []models.Message
 	for {
 		n, err := messages.Read(bytes)
 		if err != nil {
@@ -37,14 +36,13 @@ func (c Consumer) ReadMessages(rps *repository.PostgresR) error {
 		messagesString := string(bytes[:n])
 
 		err = json.Unmarshal([]byte(messagesString), &message)
+		messagesM = append(messagesM, message)
 		if err != nil {
 			log.Printf("internal/consumer: unmarshal error, %e", err)
 			return err
 		}
-		pgxBatch.Queue("insert into tablekafka(message) values($1)", &message.NewMessage)
 	}
-
-	err := rps.AddToDB(context.Background(), &pgxBatch)
+	err := rps.AddToDB(context.Background(), messagesM)
 	if err != nil {
 		return err
 	}
