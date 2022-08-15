@@ -26,8 +26,8 @@ func NewConsumer() (*Consumer, error) {
 
 func (c Consumer) ReadMessages(rps *repository.PostgresR) error {
 	pgxBatch := pgx.Batch{}
-	messages := c.Conn.ReadBatch(10e1, 10e3)
-	bytes := make([]byte, 10e3)
+	messages := c.Conn.ReadBatch(10e1, 10e5)
+	bytes := make([]byte, 10e5)
 	for {
 		n, err := messages.Read(bytes)
 		if err != nil {
