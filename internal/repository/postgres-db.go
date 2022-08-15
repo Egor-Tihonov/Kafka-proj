@@ -3,7 +3,9 @@ package repository
 import (
 	"context"
 
-	"github.com/labstack/gommon/log"
+	"log"
+
+	glog "github.com/labstack/gommon/log"
 
 	"github.com/Egor-Tihonov/Kafka-proj/internal/models"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -27,7 +29,7 @@ func (p *PostgresR) AddToDB(ctx context.Context, value []models.Message) error {
 	for _, v := range value {
 		_, err := p.Pool.Exec(ctx, "insert into tablekafka(message) values($1)", v.NewMessage)
 		if err != nil {
-			log.Errorf("database error with create user: %v", err)
+			glog.Errorf("database error with add message: %v", err)
 			return err
 		}
 	}
