@@ -5,10 +5,9 @@ import (
 
 	"log"
 
-	glog "github.com/labstack/gommon/log"
-
-	"github.com/Egor-Tihonov/Kafka-proj/internal/models"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	glog "github.com/labstack/gommon/log"
 )
 
 type PostgresR struct {
@@ -25,13 +24,17 @@ func NewConnection() (*PostgresR, error) {
 	return &PostgresR{Pool: conn}, nil
 }
 
-func (p *PostgresR) AddToDB(ctx context.Context, value []models.Message) error {
-	for _, v := range value {
-		_, err := p.Pool.Exec(ctx, "insert into tablekafka(message) values($1)", v.NewMessage)
-		if err != nil {
-			glog.Errorf("database error with add message: %v", err)
-			return err
-		}
+func (p *PostgresR) AddToDB(ctx context.Context, batch *pgx.Batch) error {
+	result := p.Pool.SendBatch(ctx, batch)
+	_, err := result.Exec()
+	if err != nil {
+		glog.Errorf("database error %e", err)
+		return err
+	}
+	err = result.Close()
+	if err != nil {
+		glog.Errorf("database error %e", err)
+		return err
 	}
 
 	return nil

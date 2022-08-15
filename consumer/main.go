@@ -28,5 +28,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("error %e", err)
 	}
-	log.Println("successfully add to db...\n exit...")
+	log.Println("successfully add to db...")
+
 }
